@@ -1,0 +1,7 @@
+aiogram
+pydantic-settings
+pydantic
+openai
+pydub
+aiofiles
+python-dotenv
