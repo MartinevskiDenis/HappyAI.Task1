@@ -6,8 +6,6 @@ from aiogram.types import Message, Voice, FSInputFile
 
 from openai import AsyncOpenAI, OpenAI
 
-from pydub import AudioSegment
-
 import dotenv
 
 from config_reader import config
@@ -34,10 +32,6 @@ def get_assistant_id() -> str:
 client = AsyncOpenAI(api_key=config.openai_api_key.get_secret_value())
 assistant_id = get_assistant_id()
 router = Router()
-
-
-def convert_ogg_to_mp3(file_path_ogg: str, file_path_mp3: str):
-    AudioSegment.from_ogg(file_path_ogg).export(file_path_mp3, format="mp3")
 
 
 async def save_voice_to_file(voice: Voice, bot: Bot) -> str:
