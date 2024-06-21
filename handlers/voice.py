@@ -114,7 +114,7 @@ async def parse_messages_to_voices(messages, thread_id: str):
 async def voice_handler(message: Message, bot: Bot, state: FSMContext):
     voice_file_path = await save_voice_to_file(message.voice, bot)
     voice_text = await get_text_from_voice(voice_file_path)
-    message_timestamp = message.date.timestamp()
+    message_timestamp = int(message.date.timestamp())
     response_messages, thread_id = await get_response_for_text(voice_text, state, message_timestamp)
     response_files_paths = await parse_messages_to_voices(response_messages, thread_id)
     for response_file_path in response_files_paths:
