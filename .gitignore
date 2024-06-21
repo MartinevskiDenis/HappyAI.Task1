@@ -166,6 +166,7 @@ cython_debug/
 #
 
 tomcat
+audio
 
 #
 # Default excludes
