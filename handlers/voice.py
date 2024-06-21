@@ -1,11 +1,8 @@
-import asyncio
-
-import aiofiles
 from aiofiles import os
 
 from aiogram import Router, F, Bot
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, Voice
+from aiogram.types import Message, Voice, FSInputFile
 
 from openai import AsyncOpenAI, OpenAI
 
@@ -44,20 +41,16 @@ def convert_ogg_to_mp3(file_path_ogg: str, file_path_mp3: str):
 
 
 async def save_voice_to_file(voice: Voice, bot: Bot) -> str:
-    file_path_ogg = f"{config.audio_files_folder}/{voice.file_id}.ogg"
-    file_path_mp3 = file_path_ogg[:file_path_ogg.rfind(".")] + ".mp3"
-    await bot.download(voice, file_path_ogg)
-    await asyncio.to_thread(convert_ogg_to_mp3, file_path_ogg, file_path_mp3)
-    await os.remove(file_path_ogg)
-    return file_path_mp3
+    file_path = f"{config.audio_files_folder}/{voice.file_id}.ogg"
+    await bot.download(voice, file_path)
+    return file_path
 
 
 async def get_text_from_voice(file_path: str) -> str:
-    async with aiofiles.open(file_path, "rb") as file:
-        audio_file = await file.read()
+    with open(file_path, "rb") as voice_file:
         transcription = await client.audio.transcriptions.create(
             model=config.openai_stt_model,
-            file=audio_file
+            file=voice_file
         )
     await os.remove(file_path)
     return transcription.text
@@ -118,6 +111,6 @@ async def voice_handler(message: Message, bot: Bot, state: FSMContext):
     response_messages, thread_id = await get_response_for_text(voice_text, state, message_timestamp)
     response_files_paths = await parse_messages_to_voices(response_messages, thread_id)
     for response_file_path in response_files_paths:
-        await message.answer_voice(response_file_path)
+        await message.answer_voice(FSInputFile(response_file_path))
         await os.remove(response_file_path)
     await state.update_data(last_message_timestamp=message_timestamp)
